@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('shares', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Propriétaire
+            $table->string('token')->unique(); // Jeton de partage
+            $table->string('shareable_type'); // Type (File ou Folder)
+            $table->unsignedBigInteger('shareable_id'); // ID du fichier ou dossier
+            $table->string('permission'); // lire, écrire, admin
+            $table->foreignId('recipient_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps(); // Enregistrer les dates de création et de dernière modification des enregistrements
+
+            $table->index(['shareable_type', 'shareable_id']); // Crée un index composite améliorant les performances des requêtes qui filtrent ou trient en fonction de ces colonnes
         });
     }
 
