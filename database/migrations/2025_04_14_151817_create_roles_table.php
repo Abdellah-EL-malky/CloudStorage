@@ -13,13 +13,8 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->integer('storage_used')->default(0);
-            $table->integer('storage_limit')->default(1073741824); // 1GB
-            $table->rememberToken();
+            $table->string('name'); // admin, manager, collaborator, reader
+            $table->string('description');
             $table->timestamps();
         });
     }
