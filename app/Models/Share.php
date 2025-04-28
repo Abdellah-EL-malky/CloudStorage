@@ -23,6 +23,7 @@ class Share extends Model
         'expires_at' => 'datetime',
     ];
 
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class);

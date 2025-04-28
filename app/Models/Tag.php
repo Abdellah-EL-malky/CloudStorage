@@ -15,6 +15,7 @@ class Tag extends Model
         'color',
     ];
 
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class);

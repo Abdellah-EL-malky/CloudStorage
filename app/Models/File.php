@@ -19,6 +19,7 @@ class File extends Model
         'is_favorite',
     ];
 
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class);
