@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->integer('storage_used')->default(0); // Stockage utilisé en octets
-            $table->integer('storage_limit')->default(1073741824); // 1GB par défaut
+            $table->unsignedBigInteger('storage_limit')->default(1073741824); // 10GB
             $table->rememberToken();
             $table->timestamps();
         });
