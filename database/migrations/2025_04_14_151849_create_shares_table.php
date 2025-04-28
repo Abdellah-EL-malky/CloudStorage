@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->timestamps(); // Enregistrer les dates de création et de dernière modification des enregistrements
 
-            $table->index(['shareable_type', 'shareable_id']); // Crée un index composite améliorant les performances des requêtes qui filtrent ou trient en fonction de ces colonnes
+            $table->index(['shareable_type', 'shareable_id']); // Crée un index composite qui améliore les performances des requêtes qui filtrent ou trient en fonction de ces colonnes
         });
     }
 
