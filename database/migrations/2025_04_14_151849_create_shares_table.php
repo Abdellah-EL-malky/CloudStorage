@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('token')->unique(); // Jeton de partage
             $table->string('shareable_type'); // Type (File ou Folder)
             $table->unsignedBigInteger('shareable_id'); // ID du fichier ou dossier
-            $table->string('permission'); // lire, écrire, admin
+            $table->enum('permission', ['read', 'write', 'admin'])->default('read');
             $table->foreignId('recipient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamp('expires_at')->nullable();
             $table->timestamps(); // Enregistrer les dates de création et de dernière modification des enregistrements

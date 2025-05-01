@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('avatar_path')->nullable();
+            $table->enum('account_type', ['free', 'premium', 'business'])->default('free');
             $table->integer('storage_used')->default(0); // Stockage utilisé en octets
             $table->unsignedBigInteger('storage_limit')->default(1073741824); // 10GB
+            $table->dateTime('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
