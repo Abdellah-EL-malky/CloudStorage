@@ -79,4 +79,42 @@ class File extends Model
     {
         return strpos($this->mime_type, 'audio/') === 0;
     }
+
+    public function isDocument()
+    {
+        $documentTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'text/plain'
+        ];
+
+        return in_array($this->mime_type, $documentTypes);
+    }
+
+    public function getIconClass()
+    {
+        if ($this->isImage()) return 'bi-file-image';
+        if ($this->isPdf()) return 'bi-file-pdf';
+        if ($this->isVideo()) return 'bi-file-play';
+        if ($this->isAudio()) return 'bi-file-music';
+        if ($this->isDocument()) return 'bi-file-text';
+
+        return 'bi-file';
+    }
+
+    public function getIconColor()
+    {
+        if ($this->isImage()) return 'text-primary';
+        if ($this->isPdf()) return 'text-danger';
+        if ($this->isVideo()) return 'text-success';
+        if ($this->isAudio()) return 'text-warning';
+        if ($this->isDocument()) return 'text-info';
+
+        return 'text-secondary';
+    }
 }
