@@ -16,8 +16,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar_path',
+        'account_type',
         'storage_used',
         'storage_limit',
+        'last_login',
     ];
 
     protected $hidden = [
@@ -28,12 +31,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'last_login' => 'datetime',
     ];
 
     // Relations
     public function roles()
     {
-        return $this->belongsToMany(Role::class);
+        return $this->belongsToMany(Role::class, 'user_role');
     }
 
     public function folders()
@@ -81,5 +85,27 @@ class User extends Authenticatable
     {
         if ($this->storage_limit === 0) return 100;
         return round(($this->storage_used / $this->storage_limit) * 100, 2);
+    }
+
+    public function getFormattedStorageUsed()
+    {
+        return $this->formatBytes($this->storage_used);
+    }
+
+    public function getFormattedStorageLimit()
+    {
+        return $this->formatBytes($this->storage_limit);
+    }
+
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $bytes /= (1 << (10 * $pow));
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
