@@ -23,6 +23,18 @@ class Share extends Model
         'expires_at' => 'datetime',
     ];
 
+    // Génère un token unique s'il n'existe pas
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($share) {
+            if (!$share->token) {
+                $share->token = Str::random(32);
+            }
+        });
+    }
+
     // Relations
     public function user()
     {
@@ -58,5 +70,11 @@ class Share extends Model
     public function canAdmin()
     {
         return $this->permission === 'admin';
+    }
+
+    // URL de partage
+    public function getShareUrl()
+    {
+        return url("/share/{$this->token}");
     }
 }
