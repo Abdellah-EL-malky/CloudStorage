@@ -29,6 +29,7 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'account_type' => 'free',
             'storage_limit' => 1073741824, // 1GB
         ]);
 
@@ -40,5 +41,37 @@ class RegisterController extends Controller
         Auth::login($user);
 
         return redirect(route('dashboard'));
+    }
+
+    public function showPlanSelectionForm()
+    {
+        return view('auth.plans');
+    }
+
+    public function selectPlan(Request $request)
+    {
+        $request->validate([
+            'plan' => ['required', 'in:free,premium,business'],
+        ]);
+
+        $user = Auth::user();
+
+        switch ($request->plan) {
+            case 'premium':
+                $user->account_type = 'premium';
+                $user->storage_limit = 5368709120; // 5GB
+                break;
+            case 'business':
+                $user->account_type = 'business';
+                $user->storage_limit = 10737418240; // 10GB
+                break;
+            default:
+                $user->account_type = 'free';
+                $user->storage_limit = 1073741824; // 1GB
+        }
+
+        $user->save();
+
+        return redirect(route('dashboard'))->with('success', 'Votre plan a été mis à jour avec succès.');
     }
 }
