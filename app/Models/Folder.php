@@ -55,4 +55,16 @@ class Folder extends Model
 
         return $path->reverse();
     }
+
+    // Taille totale du dossier et de son contenu
+    public function getTotalSize()
+    {
+        $size = $this->files->sum('size');
+
+        foreach ($this->children as $child) {
+            $size += $child->getTotalSize();
+        }
+
+        return $size;
+    }
 }
