@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('permission', ['read', 'write', 'admin'])->default('read');
             $table->foreignId('recipient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamp('expires_at')->nullable();
-            $table->timestamps(); // Enregistrer les dates de création et de dernière modification des enregistrements
+            $table->timestamps();
 
             $table->index(['shareable_type', 'shareable_id']); // Crée un index composite qui améliore les performances des requêtes qui filtrent ou trient en fonction de ces colonnes
         });
