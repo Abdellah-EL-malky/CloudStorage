@@ -12,10 +12,6 @@
                                     <span class="step-circle">1</span>
                                     <span class="step-text">Compte</span>
                                 </div>
-                                <div class="step">
-                                    <span class="step-circle">2</span>
-                                    <span class="step-text">Choisir un plan</span>
-                                </div>
                             </div>
                         </div>
                     </div>

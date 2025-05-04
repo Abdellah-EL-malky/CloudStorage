@@ -40,7 +40,7 @@ class RegisterController extends Controller
         // Connexion automatique
         Auth::login($user);
 
-        return redirect(route('dashboard'));
+        return redirect(route('plans'));
     }
 
     public function showPlanSelectionForm()

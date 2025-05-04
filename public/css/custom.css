@@ -126,3 +126,85 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
     border-color: #0061a8;
 }
+
+.steps {
+    display: flex;
+    gap: 3rem;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #6c757d;
+}
+
+.step.active {
+    color: #0061a8;
+}
+
+.step.completed {
+    color: #28a745;
+}
+
+.step-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    margin-bottom: 0.5rem;
+}
+
+.step.active .step-circle {
+    background-color: #0061a8;
+    color: white;
+    border-color: #0061a8;
+}
+
+.step.completed .step-circle {
+    background-color: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.price {
+    margin: 1rem 0;
+}
+
+.amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #0061a8;
+}
+
+.period {
+    color: #6c757d;
+}
+
+.plan-features {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1.5rem;
+}
+
+.plan-features li {
+    margin-bottom: 0.5rem;
+}
+
+.plan-features li i {
+    color: #28a745;
+    margin-right: 0.5rem;
+}
+
+.plan-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
