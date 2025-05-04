@@ -60,14 +60,17 @@ class RegisterController extends Controller
             case 'premium':
                 $user->account_type = 'premium';
                 $user->storage_limit = 5368709120; // 5GB
+                return redirect()->route('payment.show', ['plan' => 'premium']);
                 break;
             case 'business':
                 $user->account_type = 'business';
                 $user->storage_limit = 10737418240; // 10GB
+                return redirect()->route('payment.show', ['plan' => 'business']);
                 break;
             default:
                 $user->account_type = 'free';
                 $user->storage_limit = 1073741824; // 1GB
+                return redirect()->route('dashboard')->with('success', 'Votre plan gratuit a été activé.');
         }
 
         $user->save();
