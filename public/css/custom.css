@@ -93,3 +93,36 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 2rem;
     margin-bottom: 10px;
 }
+
+.steps {
+    display: flex;
+    gap: 3rem;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #6c757d;
+}
+
+.step.active {
+    color: #0061a8;
+}
+
+.step-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    margin-bottom: 0.5rem;
+}
+
+.step.active .step-circle {
+    background-color: #0061a8;
+    color: white;
+    border-color: #0061a8;
+}
