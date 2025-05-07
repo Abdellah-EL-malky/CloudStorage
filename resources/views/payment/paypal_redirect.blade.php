@@ -56,9 +56,6 @@ class TagController extends Controller
         return view('tags.show', compact('tag', 'files'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Tag $tag)
     {
         $this->authorize('update', $tag);
