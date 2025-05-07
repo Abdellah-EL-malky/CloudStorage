@@ -1,21 +1,15 @@
-// Fonctions pour les partages
 function showShareModal(type, id) {
-    // Définir les variables globales
     currentShareableType = type;
     currentShareableId = id;
 
-    // Réinitialiser le formulaire
     document.getElementById('shareForm').reset();
     document.getElementById('shareUrlContainer').style.display = 'none';
 
-    // Mettre à jour le titre du modal
     document.getElementById('shareModalTitle').textContent = 'Partager ' + (type === 'folder' ? 'un dossier' : 'un fichier');
 
-    // Mettre à jour l'action du formulaire
     const route = type === 'folder' ? '/shares/folder/' + id : '/shares/file/' + id;
     document.getElementById('shareForm').action = route;
 
-    // Ouvrir le modal
     var modal = new bootstrap.Modal(document.getElementById('shareModal'));
     modal.show();
 }
@@ -48,34 +42,11 @@ function copyToClipboard(text) {
     });
 }
 
-// Fonction pour la prévisualisation d'avatar
-function setupAvatarPreview() {
-    const avatarInput = document.getElementById('avatar');
-    const avatarImage = document.querySelector('.img-thumbnail');
-
-    if (avatarInput && avatarImage) {
-        avatarInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    avatarImage.src = e.target.result;
-                }
-
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    }
-}
-
-// Initialiser les fonctions lorsque le DOM est chargé
 document.addEventListener('DOMContentLoaded', function() {
-    // Configurer la prévisualisation de l'avatar si on est sur la page de profil
     if (document.getElementById('avatar')) {
         setupAvatarPreview();
     }
 
-    // Configurer le formulaire de partage s'il existe
     const shareForm = document.getElementById('shareForm');
     if (shareForm) {
         shareForm.addEventListener('submit', function(e) {
