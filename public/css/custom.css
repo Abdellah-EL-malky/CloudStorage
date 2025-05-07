@@ -110,39 +110,6 @@ h1, h2, h3, h4, h5, h6 {
     color: #0061a8;
 }
 
-.step-circle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: 2px solid currentColor;
-    margin-bottom: 0.5rem;
-}
-
-.step.active .step-circle {
-    background-color: #0061a8;
-    color: white;
-    border-color: #0061a8;
-}
-
-.steps {
-    display: flex;
-    gap: 3rem;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #6c757d;
-}
-
-.step.active {
-    color: #0061a8;
-}
-
 .step.completed {
     color: #28a745;
 }
@@ -206,5 +173,28 @@ h1, h2, h3, h4, h5, h6 {
 
 .plan-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+}
+
+.welcome-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0061a8;
+}
+
+.welcome-pricing-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.welcome-pricing-card:hover {
+    transform: translateY(-10px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
