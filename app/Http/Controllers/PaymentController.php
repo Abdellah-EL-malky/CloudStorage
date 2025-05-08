@@ -2,114 +2,145 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Plan;
+use App\Models\Payment;
+use App\Models\UserPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends Controller
 {
-    public function show(Request $request)
+
+    public function show(Request $request, $plan)
     {
-        $plan = $request->input('plan');
-        $user = Auth::user();
+        if (is_numeric($plan)) {
+            $planModel = Plan::find($plan);
+        } else {
+            $planType = ucfirst($plan);
+            $planModel = Plan::where('type', $planType)->first();
+        }
 
-        $price = $plan === 'premium' ? 19.99 : 29.99;
+        if (!$planModel) {
+            return redirect()->route('plans')->with('error', 'Plan non trouvé');
+        }
 
-        // Génére un ID de transaction unique
-        $transactionId = 'CS-' . strtoupper(Str::random(10));
-
-        // Stocke l'ID de transaction dans la session
-        session(['transaction_id' => $transactionId]);
-        session(['plan' => $plan]);
-
-        return view('payment.show', compact('plan', 'price', 'user', 'transactionId'));
+        return view('payment.show', ['planModel' => $planModel]);
     }
 
     public function process(Request $request)
     {
-        $request->validate([
-            'plan' => ['required', 'in:premium,business'],
-            'payment_method' => ['required', 'in:paypal,card'],
-        ]);
-
-        $plan = $request->input('plan');
-        $paymentMethod = $request->input('payment_method');
-
-        if ($paymentMethod === 'paypal') {
-            return redirect()->route('payment.paypal.redirect', ['plan' => $plan]);
-        } else {
-            $success = true;
-
-            if ($success) {
-                return $this->completePayment($plan);
-            } else {
-                return redirect()->route('payment.failed')
-                    ->with('error', 'Le paiement par carte a échoué. Veuillez réessayer.');
-            }
-        }
-    }
-
-    public function redirectToPaypal(Request $request)
-    {
-        $plan = $request->input('plan');
-        $price = $plan === 'premium' ? 19.99 : 29.99;
-        $transactionId = session('transaction_id', 'CS-' . strtoupper(Str::random(10)));
-
-        return view('payment.paypal_redirect', compact('plan', 'price', 'transactionId'));
-    }
-
-    public function handlePaypalSuccess()
-    {
-        $plan = session('plan');
+        $planId = $request->plan_id;
+        $plan = Plan::find($planId);
 
         if (!$plan) {
-            return redirect()->route('plans')
-                ->with('error', 'Session expirée. Veuillez réessayer.');
+            return redirect()->route('plans')->with('error', 'Plan non trouvé');
         }
 
-        return $this->completePayment($plan);
-    }
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $paypalToken = $provider->getAccessToken();
 
-    public function handlePaypalCancel()
-    {
-        return redirect()->route('plans')
-            ->with('error', 'Le paiement PayPal a été annulé. Veuillez réessayer ou choisir un autre mode de paiement.');
-    }
+        $response = $provider->createOrder([
+            "intent" => "CAPTURE",
+            "application_context" => [
+                "return_url" => route('payment.success'),
+                "cancel_url" => route('payment.cancel')
+            ],
+            "purchase_units" => [
+                [
+                    "reference_id" => $plan->id,
+                    "description" => "Abonnement " . $plan->type,
+                    "amount" => [
+                        "currency_code" => "EUR",
+                        "value" => $plan->price
+                    ]
+                ]
+            ]
+        ]);
 
-    protected function completePayment($plan)
-    {
-        $user = Auth::user();
+        if (isset($response['id']) && $response['id'] != null) {
+            session(['plan_id' => $plan->id]);
+            session(['paypal_order_id' => $response['id']]);
 
-        Log::info("Paiement réussi pour l'utilisateur {$user->id} - Plan: {$plan}");
-
-        // Mise à jour du plan de l'utilisateur
-        if ($plan === 'premium') {
-            $user->account_type = 'premium';
-            $user->storage_limit = 5368709120; // 5GB
-        } else {
-            $user->account_type = 'business';
-            $user->storage_limit = 10737418240; // 10GB
+            foreach ($response['links'] as $link) {
+                if ($link['rel'] === 'approve') {
+                    return redirect()->away($link['href']);
+                }
+            }
         }
 
-        $user->save();
-
-        session()->forget(['transaction_id', 'plan']);
-
-        return redirect()->route('dashboard')
-            ->with('success', 'Paiement effectué avec succès. Votre plan ' . ucfirst($plan) . ' est maintenant actif.');
+        return redirect()->back()->with('error', 'Impossible de créer la commande PayPal');
     }
 
-    public function failed()
+    public function success(Request $request)
     {
-        return view('payment.failed');
+        $planId = session('plan_id');
+        $token = $request->get('token');
+
+        if (!$planId || !$token) {
+            return redirect()->route('plans')->with('error', 'Informations de paiement manquantes');
+        }
+
+        $plan = Plan::find($planId);
+
+        if (!$plan) {
+            return redirect()->route('plans')->with('error', 'Plan non trouvé');
+        }
+
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+
+        try {
+            if (Payment::where('payment_id', $token)->exists()) {
+                return redirect()->route('dashboard')->with('info', 'Paiement déjà traité.');
+            }
+
+            $response = $provider->capturePaymentOrder($token);
+
+            if (isset($response['status']) && $response['status'] === 'COMPLETED') {
+                $user = Auth::user();
+
+                $user->storage_limit = $plan->storage;
+                $user->save();
+
+                $userPlan = new UserPlan([
+                    'plan_id' => $planId,
+                    'user_id' => $user->id,
+                    'start_date' => now(),
+                    'end_date' => now()->addMonth(),
+                    'paymentStatus' => 'paid'
+                ]);
+                $userPlan->save();
+
+                $payment = new Payment([
+                    'payment_id' => $token,
+                    'plan_id' => $planId,
+                    'user_id' => $user->id,
+                    'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+                    'currency' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['currency_code'],
+                    'payment_status' => $response['status'],
+                    'payment_method' => 'PayPal'
+                ]);
+                $payment->save();
+
+                session()->forget(['plan_id', 'paypal_order_id']);
+
+                return redirect()->route('dashboard')->with('success', 'Paiement réussi ! Votre plan ' . $plan->type . ' est maintenant actif.');
+            }
+
+            return redirect()->route('dashboard')->with('error', 'Le paiement a échoué');
+
+        } catch (\Exception $e) {
+            return redirect()->route('plans')->with('error', 'Une erreur est survenue lors du traitement du paiement');
+        }
     }
 
-    public function cancel()
+    public function cancel(Request $request)
     {
-        session()->forget(['transaction_id', 'plan']);
+        session()->forget(['plan_id', 'paypal_order_id']);
 
-        return redirect()->route('plans')
-            ->with('error', 'Le paiement a été annulé. Veuillez réessayer ou choisir un autre plan.');
+        return redirect()->route('plans')->with('warning', 'Paiement annulé');
     }
 }
