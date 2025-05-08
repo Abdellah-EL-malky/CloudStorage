@@ -15,7 +15,6 @@
                         <h5 class="card-title">Utilisateurs totaux</h5>
                         <div class="d-flex align-items-center">
                             <h2 class="mb-0">{{ $totalUsers }}</h2>
-                            <span class="badge bg-success ms-2">+{{ $userGrowth }}%</span>
                         </div>
                     </div>
                 </div>
@@ -27,13 +26,12 @@
                         <h5 class="card-title">Utilisateurs actifs</h5>
                         <div class="d-flex align-items-center">
                             <h2 class="mb-0">{{ $activeUsers }}</h2>
-                            <span class="badge bg-success ms-2">{{ round(($activeUsers / max($totalUsers, 1)) * 100) }}%</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-$            <div class="col-md-3 mb-4">
+            <div class="col-md-3 mb-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Stockage total</h5>
@@ -49,7 +47,6 @@ $            <div class="col-md-3 mb-4">
                                 }
                             @endphp
                             <h2 class="mb-0">{{ $size }}</h2>
-                            <span class="badge bg-success ms-2">+{{ $storageGrowth }}%</span>
                         </div>
                     </div>
                 </div>
