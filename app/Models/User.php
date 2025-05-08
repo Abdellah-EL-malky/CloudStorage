@@ -17,7 +17,6 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar_path',
-        'account_type',
         'storage_used',
         'storage_limit',
         'last_login',
@@ -65,6 +64,11 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
+    public function userplan()
+    {
+        return $this->hasOne(UserPlan::class);
+    }
+
     // Méthodes
     public function hasRole($roleName)
     {
@@ -87,12 +91,12 @@ class User extends Authenticatable
         return round(($this->storage_used / $this->storage_limit) * 100, 2);
     }
 
-    public function getFormattedStorageUsed()
+    public function getFormattedStorageUsedAttribute()
     {
         return $this->formatBytes($this->storage_used);
     }
 
-    public function getFormattedStorageLimit()
+    public function getFormattedStorageLimitAttribute()
     {
         return $this->formatBytes($this->storage_limit);
     }
